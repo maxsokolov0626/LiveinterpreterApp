@@ -24,10 +24,11 @@ jobs:
         with:
           cache-disabled: true
 
-      - name: Ensure gradlew exists
+      - name: Generate Gradle wrapper if missing
         run: |
           if [ ! -f "./gradlew" ]; then
-            gradle wrapper
+            echo "Gradle wrapper missing — generating new one..."
+            gradle wrapper --gradle-version 8.2
           fi
           chmod +x ./gradlew
 
