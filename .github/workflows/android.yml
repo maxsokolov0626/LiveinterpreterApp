@@ -24,11 +24,14 @@ jobs:
         with:
           cache-disabled: true
 
-      - name: Generate Gradle wrapper if missing
+      - name: Download Gradle wrapper (if missing)
         run: |
           if [ ! -f "./gradlew" ]; then
-            echo "Gradle wrapper missing — generating new one..."
-            gradle wrapper --gradle-version 8.2
+            echo "Gradle wrapper missing — downloading..."
+            curl -sLO https://services.gradle.org/distributions/gradle-8.2-bin.zip
+            unzip -q gradle-8.2-bin.zip -d gradle
+            echo '#!/bin/bash' > gradlew
+            echo 'gradle/gradle-8.2/bin/gradle "$@"' >> gradlew
           fi
           chmod +x ./gradlew
 
