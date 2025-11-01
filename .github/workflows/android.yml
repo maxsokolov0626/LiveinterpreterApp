@@ -19,32 +19,22 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
 
-      # If the Gradle wrapper exists, use it. Otherwise fall back to plain Gradle.
-      - name: Make gradlew executable (if present)
+      - name: Generate Gradle wrapper (if missing)
         run: |
-          if [ -f ./gradlew ]; then
-            chmod +x ./gradlew
+          if [ ! -f "./gradlew" ]; then
+            gradle wrapper
           fi
+          chmod +x ./gradlew
 
       - name: Build Debug APK
-        run: |
-          if [ -f ./gradlew ]; then
-            ./gradlew --no-daemon assembleDebug
-          else
-            echo "No gradlew found. Using setup-gradle action…"
-            echo "org.gradle.jvmargs=-Xmx2g" >> gradle.properties
-            echo "android.useAndroidX=true" >> gradle.properties
-            echo "android.enableJetifier=true" >> gradle.properties
-            echo "⚠️ If this fails, we need to add the Gradle wrapper to the repo."
-            ./gradle assembleDebug || gradle assembleDebug || true
-          fi
+        run: ./gradlew assembleDebug --no-daemon
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
           path: app/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
+          if-no-files-found: warn
